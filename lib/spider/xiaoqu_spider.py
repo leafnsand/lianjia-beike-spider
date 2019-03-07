@@ -28,8 +28,8 @@ class XiaoQuBaseSpider(BaseSpider):
         :return: None
         """
         district_name = area_dict.get(area_name, "")
-        csv_file = self.today_path + "/{0}_{1}.csv".format(district_name, area_name)
-        with open(csv_file, "w") as f:
+        csv_file = self.today_path + "/{0}_{1}.csv".format(get_chinese_district(district_name), chinese_area_dict.get(area_name, ""))
+        with open(csv_file, "wb") as f:
             # 开始获得需要的板块数据
             xqs = self.get_xiaoqu_info(city_name, area_name)
             # 锁定
@@ -39,7 +39,7 @@ class XiaoQuBaseSpider(BaseSpider):
                 self.mutex.release()
             if fmt == "csv":
                 for xiaoqu in xqs:
-                    f.write(self.date_string + "," + xiaoqu.text() + "\n")
+                    f.write(xiaoqu.text().encode('utf-8'))
         print("Finish crawl area: " + area_name + ", save data to : " + csv_file)
         logger.info("Finish crawl area: " + area_name + ", save data to : " + csv_file)
 
@@ -81,18 +81,30 @@ class XiaoQuBaseSpider(BaseSpider):
             # 获得有小区信息的panel
             house_elems = soup.find_all('li', class_="xiaoquListItem")
             for house_elem in house_elems:
-                price = house_elem.find('div', class_="totalPrice")
-                name = house_elem.find('div', class_='title')
-                on_sale = house_elem.find('div', class_="xiaoquListItemSellCount")
+                code = house_elem['data-housecode']
+                price_elem = house_elem.find('div', class_="totalPrice")
+                name_elem = house_elem.find('div', class_='title')
+                on_sale_elem = house_elem.find('div', class_="xiaoquListItemSellCount")
+                year_elem = house_elem.find('div', class_="positionInfo")
 
                 # 继续清理数据
-                price = price.text.strip()
-                name = name.text.replace("\n", "")
-                on_sale = on_sale.text.replace("\n", "").strip()
+                price_str = price_elem.text.strip()
+                name_str = name_elem.text.replace("\n", "")
+                on_sale_str = on_sale_elem.text.replace("\n", "").strip()
+                year_str = year_elem.text.replace("\n", "").split('/')[1].strip()
+
+
+                price = find_num_in_string(price_str, 0)
+                year = find_num_in_string(year_str, 0)
+
+                mark = '可选'
+                if price < 35000 or price > 55000 or year < 1995:
+                    mark = '放弃'
 
                 # 作为对象保存
-                xiaoqu = XiaoQu(chinese_district, chinese_area, name, price, on_sale)
+                xiaoqu = XiaoQu(chinese_district, chinese_area, name_str, price_str, on_sale_str, year_str, code, mark)
                 xiaoqu_list.append(xiaoqu)
+
         return xiaoqu_list
 
     def start(self):

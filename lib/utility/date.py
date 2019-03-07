@@ -4,7 +4,7 @@
 # 此代码仅供学习与交流，请勿用于商业用途。
 # 日期和时间的字符串辅助函数
 
-import time
+import time, re
 
 
 def get_time_string():
@@ -33,6 +33,12 @@ def get_year_month_string():
     current = time.localtime()
     return time.strftime("%Y%m", current)
 
+def find_num_in_string(str, default):
+    result = default
+    match = re.search('\d+', str)
+    if not match is None:
+        result = int(match.group())
+    return result
 
 if __name__ == "__main__":
     print(get_date_string())

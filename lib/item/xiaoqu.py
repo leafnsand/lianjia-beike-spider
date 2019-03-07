@@ -6,16 +6,23 @@
 
 
 class XiaoQu(object):
-    def __init__(self, district, area, name, price, on_sale):
+    def __init__(self, district, area, name, price, on_sale, year, code, mark):
+        self.mark = mark
+        self.code = code
         self.district = district
         self.area = area
         self.price = price
         self.name = name
         self.on_sale = on_sale
+        self.year = year
 
     def text(self):
-        return self.district + "," + \
+        return  self.mark + "," + \
+                self.code + "," + \
+                self.district + "," + \
                 self.area + "," + \
                 self.name + "," + \
                 self.price + "," + \
-                self.on_sale
+                self.year + "," + \
+                self.on_sale + "\n"
+
