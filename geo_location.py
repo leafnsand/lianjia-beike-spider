@@ -4094,37 +4094,3 @@ def query_subway_station():
 # query_samantha_bus()
 # query_xavier_drv()
 # query_subway_station()
-
-f = open('location_ansi.csv', 'r')
-f2 = open('location_2.csv', 'wb')
-
-while 1:
-    line = f.readline()
-
-    if not line:
-        break
-
-    data = line.split('\t')[2]
-
-    xiaoqu = line.split('\t')[0]
-    result = json.loads(data)
-
-    # 坐标 行政区 名称
-    if result["status"] == "1" and int(result["count"]) > 0:
-        if (type(result["geocodes"][0]["district"]) is list or type(result["geocodes"][0]["province"]) is list):
-            f2.write("{0}\t{1}\t{2}\t{3}\t{4}".format(xiaoqu,
-                result["geocodes"][0]["location"],
-                result["geocodes"][0]["district"],
-                result["geocodes"][0]["formatted_address"],
-                data
-            ).encode('utf-8'))
-        else:
-            f2.write("{0}\t{1}\t{2}\t{3}\t{4}".format(xiaoqu,
-                result["geocodes"][0]["location"],
-                result["geocodes"][0]["district"],
-                result["geocodes"][0]["formatted_address"].replace(result["geocodes"][0]["province"], "").replace(result["geocodes"][0]["district"], ""),
-                data
-            ).encode('utf-8'))
-
-f.close()
-f2.close()
